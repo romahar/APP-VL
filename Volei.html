@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VolleyRef - Sistema de Arbitragem</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            /* Cores principais - esquema harmonizado */
+            --primary: #4f6df5;
+            --primary-dark: #3a56d5;
+            --secondary: #ff5b77;
+            --secondary-dark: #e04a65;
+            --accent: #6c63ff;
+            --accent-dark: #5a52e0;
+            --dark: #2d2b55;
+            --light: #f6f6ff;
+            --gray: #8a8aa3;
+            --gray-light: #e2e2f0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --card-bg: #ffffff;
+            --login-bg: #f5f7fa;
+        }
+
+        body {
+            background-color: var(--login-bg);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* Container principal */
+        .main-container {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .main-container:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Header comum */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .main-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .main-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        /* Formulários */
+        .form-container {
+            padding: 40px 35px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 15px;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 16px;
+        }
+
+        .input-with-icon input, .input-with-icon select, .input-with-icon textarea {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid var(--gray-light);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        .input-with-icon textarea {
+            min-height: 100px;
+            resize: vertical;
+            padding-left: 15px;
+        }
+
+        .input-with-icon input:focus, .input-with-icon select:focus, .input-with-icon textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 109, 245, 0.15);
+        }
+
+        .input-error {
+            border-color: var(--error) !important;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 13px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* Botões */
+        .primary-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 25px;
+        }
+
+        .primary-button:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #2a46c5 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 86, 213, 0.3);
+        }
+
+        .primary-button:active {
+            transform: translateY(0);
+        }
+
+        .secondary-button {
+            width: 100%;
+            padding: 16px;
+            background: var(--light);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .secondary-button:hover {
+            background: rgba(79, 109, 245, 0.1);
+        }
+
+        .button-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .button-disabled:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Divisor */
+        .divider {
+            text-align: center;
+            position: relative;
+            margin: 25px 0;
+            color: var(--gray);
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--gray-light);
+        }
+
+        .divider span {
+            background-color: var(--card-bg);
+            padding: 0 15px;
+            position: relative;
+            font-size: 14px;
+        }
+
+        /* Links */
+        .form-link {
+            text-align: center;
+            font-size: 15px;
+            color: var(--gray);
+            margin-top: 20px;
+        }
+
+        .form-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .form-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--gray);
+            padding: 15px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        /* Mensagens */
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Estilos do App de Arbitragem */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--light);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            position: relative;
+            display: none;
+        }
+
+        .app-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Barra de navegação superior */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            position: relative;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--warning);
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+        }
+
+        /* Botões de ação na navbar */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            width: 42px;
+            height: 42px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .settings-btn {
+            position: absolute;
+            left: 20px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            right: 20px;
+        }
+
+        /* Container de conteúdo */
+        .content {
+            padding: 25px;
+            min-height: 600px;
+        }
+
+        /* Telas */
+        .page {
+            display: none;
+            animation: pageFadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards de partida */
+        .section-title {
+            font-size: 20px;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .match-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .match-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .match-info {
+            padding: 18px;
+        }
+
+        .match-teams {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .match-details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .match-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-live {
+            background: rgba(255, 91, 119, 0.1);
+            color: var(--secondary);
+        }
+
+        .status-scheduled {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--accent);
+        }
+
+        .status-finished {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+        }
+
+        .btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-dark);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background: var(--accent-dark);
+        }
+
+        /* Tela de arbitragem */
+        .scoreboard {
+            background: linear-gradient(135deg, var(--dark) 0%, #3a3770 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .scoreboard-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .sets-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .set {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .set.active {
+            background: var(--secondary);
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .team-name:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .team-score {
+            font-size: 70px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .vs {
+            font-size: 24px;
+            opacity: 0.5;
+            font-weight: 300;
+        }
+
+        .score-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-btn {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .score-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .undo-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .undo-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Container de arbitragem avançada */
+        .arbitration-advanced {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .court-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .team-court {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            height: 160px;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .team-court.red {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border: 2px solid var(--secondary);
+        }
+
+        .team-court.blue {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid var(--primary);
+        }
+
+        .court-position {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #333;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            border: 2px solid;
+        }
+
+        .team-court.red .court-position {
+            border-color: var(--secondary);
+        }
+
+        .team-court.blue .court-position {
+            border-color: var(--primary);
+        }
+
+        .court-position:hover {
+            transform: scale(1.05);
+        }
+
+        /* Controles de arbitragem */
+        .arbitration-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .arbitration-controls button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .rotate-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .rotate-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .serve-btn {
+            background: var(--warning);
+            color: white;
+        }
+
+        .serve-btn:hover {
+            background: #e68900;
+        }
+
+        .reset-btn {
+            background: var(--error);
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* Estatísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .stat-controls button {
+            flex: 1;
+            padding: 5px;
+            border-radius: 6px;
+            border: 1px solid var(--gray-light);
+            background: var(--light);
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stat-controls button:hover {
+            background: var(--gray-light);
+        }
+
+        /* Match actions */
+        .match-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .match-actions .btn {
+            flex: 1;
+        }
+
+        /* Tela de detalhes */
+        .detail-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .detail-title {
+            font-size: 18px;
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .player {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background: rgba(108, 99, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .player-number {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .player-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        /* Tela de histórico */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .history-item {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .history-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-result {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--secondary);
+        }
+
+        .history-date {
+            color: var(--gray);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .history-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Menu inferior com botão + */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px 10px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--gray-light);
+            position: relative;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 70px;
+            z-index: 1;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(79, 109, 245, 0.1);
+        }
+
+        /* Botão + flutuante */
+        .floating-add-button {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 91, 119, 0.4);
+            transition: all 0.3s;
+            z-index: 10;
+            border: none;
+        }
+
+        .floating-add-button:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 15px 30px rgba(255, 91, 119, 0.5);
+        }
+
+        .floating-add-button:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        /* Modal para criar evento */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--error);
+        }
+
+        /* Estilos para a tela de arbitragem completa */
+        .game-info {
+            background: rgba(79, 109, 245, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-info-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .game-info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Tela de Configurações do Sistema */
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 12px;
+            border: 1px solid var(--gray-light);
+            transition: all 0.3s;
+        }
+
+        .settings-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(79, 109, 245, 0.1);
+        }
+
+        .settings-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .settings-label i {
+            color: var(--primary);
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-light);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Modal de edição de time */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .edit-modal-content {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 300px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 576px) {
+            .main-header, .form-container {
+                padding: 30px 20px;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .app-container {
+                border-radius: 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .team-score {
+                font-size: 60px;
+            }
+            
+            .floating-add-button {
+                width: 60px;
+                height: 60px;
+                font-size: 26px;
+                top: -25px;
+            }
+            
+            .nav-item {
+                max-width: 60px;
+                font-size: 11px;
+            }
+            
+            .nav-title {
+                font-size: 16px;
+            }
+            
+            .nav-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 15px;
+            }
+
+            .court-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .team-court {
+                height: 140px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Sistema de gerenciamento de usuários
+        class UserManager {
+            static STORAGE_KEY = 'volleyRefUsers';
+            static EVENTS_KEY = 'volleyRefEvents';
+            static SETTINGS_KEY = 'volleyRefSettings';
+            static HISTORY_KEY = 'volleyRefMatchHistory';
+            
+            static getUsers() {
+                const usersJSON = localStorage.getItem(this.STORAGE_KEY);
+                return usersJSON ? JSON.parse(usersJSON) : [];
+            }
+            
+            static saveUsers(users) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+            }
+            
+            static addUser(user) {
+                const users = this.getUsers();
+                
+                // Verificar se usuário já existe
+                if (users.some(u => u.email === user.email)) {
+                    return { success: false, message: 'E-mail já cadastrado' };
+                }
+                
+                users.push(user);
+                this.saveUsers(users);
+                return { success: true, message: 'Usuário cadastrado com sucesso' };
+            }
+            
+            static authenticate(email, password) {
+                const users = this.getUsers();
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    return { 
+                        success: true, 
+                        user: {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            role: user.role || 'árbitro'
+                        }
+                    };
+                }
+                
+                return { success: false, message: 'E-mail ou senha incorretos' };
+            }
+            
+            // Gerenciamento de eventos
+            static getEvents() {
+                const eventsJSON = localStorage.getItem(this.EVENTS_KEY);
+                return eventsJSON ? JSON.parse(eventsJSON) : [];
+            }
+            
+            static saveEvents(events) {
+                localStorage.setItem(this.EVENTS_KEY, JSON.stringify(events));
+            }
+            
+            static addEvent(event) {
+                const events = this.getEvents();
+                event.id = Date.now().toString();
+                event.createdAt = new Date().toISOString();
+                event.status = 'agendado';
+                events.push(event);
+                this.saveEvents(events);
+                return { success: true, event: event };
+            }
+            
+            static getEventsByUser(userId) {
+                const events = this.getEvents();
+                return events.filter(event => event.createdBy === userId || event.arbitroId === userId);
+            }
+            
+            static updateEvent(eventId, updates) {
+                const events = this.getEvents();
+                const eventIndex = events.findIndex(e => e.id === eventId);
+                
+                if (eventIndex !== -1) {
+                    events[eventIndex] = { ...events[eventIndex], ...updates };
+                    this.saveEvents(events);
+                    return { success: true, event: events[eventIndex] };
+                }
+                
+                return { success: false, message: 'Evento não encontrado' };
+            }
+            
+            // Gerenciamento de histórico de partidas
+            static getMatchHistory() {
+                const historyJSON = localStorage.getItem(this.HISTORY_KEY);
+                return historyJSON ? JSON.parse(historyJSON) : [];
+            }
+            
+            static saveMatchHistory(history) {
+                localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
+            }
+            
+            static addMatchToHistory(match) {
+                const history = this.getMatchHistory();
+                match.id = Date.now().toString();
+                match.date = new Date().toISOString();
+                history.unshift(match); // Adiciona no início
+                this.saveMatchHistory(history);
+                return { success: true, match: match };
+            }
+            
+            // Gerenciamento de configurações
+            static getSettings() {
+                const settingsJSON = localStorage.getItem(this.SETTINGS_KEY);
+                return settingsJSON ? JSON.parse(settingsJSON) : {
+                    darkMode: false,
+                    notifications: true,
+                    soundEffects: true,
+                    autoSave: true,
+                    language: 'pt-br',
+                    vibration: false
+                };
+            }
+            
+            static saveSettings(settings) {
+                localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(settings));
+            }
+            
+            static updateSettings(newSettings) {
+                const currentSettings = this.getSettings();
+                const updatedSettings = { ...currentSettings, ...newSettings };
+                this.saveSettings(updatedSettings);
+                return updatedSettings;
+            }
+        }
+
+        // Componente de Arbitragem Avançada
+        function AdvancedArbitration({ 
+            currentMatch, 
+            onFinishMatch, 
+            onBack 
+        }) {
+            // Estados do jogo
+            const [blueTeam, setBlueTeam] = useState({
+                name: currentMatch?.teamA || 'Time Azul',
+                score: 0,
+                sets: [0, 0, 0, 0, 0],
+                serving: true,
+                rotation: [1, 6, 5, 2, 3, 4],
+                stats: {
+                    aces: 0,
+                    blocks: 0,
+                    attacks: 0,
+                    errors: 0
+                }
+            });
+            
+            const [redTeam, setRedTeam] = useState({
+                name: currentMatch?.teamB || 'Time Vermelho',
+                score: 0,
+                sets: [0, 0, 0, 0, 0],
+                serving: false,
+                rotation: [1, 6, 5, 2, 3, 4],
+                stats: {
+                    aces: 0,
+                    blocks: 0,
+                    attacks: 0,
+                    errors: 0
+                }
+            });
+            
+            const [currentSet, setCurrentSet] = useState(1);
+            const [gameHistory, setGameHistory] = useState([]);
+            const [isPaused, setIsPaused] = useState(false);
+            const [showEditModal, setShowEditModal] = useState(false);
+            const [editingTeam, setEditingTeam] = useState(null);
+            const [editingName, setEditingName] = useState('');
+
+            // Função para adicionar ponto
+            const addPoint = (team) => {
+                if (isPaused) return;
+                
+                // Salvar estado atual no histórico
+                const historyEntry = {
+                    timestamp: new Date().toISOString(),
+                    blueScore: blueTeam.score,
+                    redScore: redTeam.score,
+                    set: currentSet,
+                    action: `Ponto para ${team === 'blue' ? blueTeam.name : redTeam.name}`
+                };
+                
+                setGameHistory(prev => [...prev, historyEntry]);
+                
+                // Atualizar pontuação
+                if (team === 'blue') {
+                    setBlueTeam(prev => ({ ...prev, score: prev.score + 1 }));
+                } else {
+                    setRedTeam(prev => ({ ...prev, score: prev.score + 1 }));
+                }
+                
+                // Trocar saque (regra do vôlei: quem pontua ganha o saque)
+                if (team === 'blue') {
+                    setBlueTeam(prev => ({ ...prev, serving: true }));
+                    setRedTeam(prev => ({ ...prev, serving: false }));
+                } else {
+                    setRedTeam(prev => ({ ...prev, serving: true }));
+                    setBlueTeam(prev => ({ ...prev, serving: false }));
+                }
+                
+                // Verificar se o set terminou
+                checkSetCompletion();
+            };
+
+            // Verificar se o set terminou
+            const checkSetCompletion = () => {
+                const isFifthSet = currentSet === 5;
+                const winningScore = isFifthSet ? 15 : 25;
+                const minDifference = 2;
+                
+                const scoreDiff = Math.abs(blueTeam.score - redTeam.score);
+                
+                if ((blueTeam.score >= winningScore || redTeam.score >= winningScore) && scoreDiff >= minDifference) {
+                    // Determinar vencedor do set
+                    const setWinner = blueTeam.score > redTeam.score ? 'blue' : 'red';
+                    
+                    // Atualizar sets
+                    if (setWinner === 'blue') {
+                        const newSets = [...blueTeam.sets];
+                        newSets[currentSet - 1] = 1;
+                        setBlueTeam(prev => ({ ...prev, sets: newSets }));
+                    } else {
+                        const newSets = [...redTeam.sets];
+                        newSets[currentSet - 1] = 1;
+                        setRedTeam(prev => ({ ...prev, sets: newSets }));
+                    }
+                    
+                    // Verificar se a partida terminou
+                    const blueSetsWon = blueTeam.sets.reduce((a, b) => a + b);
+                    const redSetsWon = redTeam.sets.reduce((a, b) => a + b);
+                    
+                    if (blueSetsWon === 3 || redSetsWon === 3) {
+                        // Partida encerrada - salvar no histórico
+                        saveMatchToHistory();
+                    } else {
+                        // Próximo set
+                        alert(`Set ${currentSet} finalizado! ${setWinner === 'blue' ? blueTeam.name : redTeam.name} venceu o set.`);
+                        setCurrentSet(prev => prev + 1);
+                        setBlueTeam(prev => ({ ...prev, score: 0 }));
+                        setRedTeam(prev => ({ ...prev, score: 0 }));
+                        
+                        // Alternar saque para o próximo set
+                        if (currentSet % 2 === 0) {
+                            setBlueTeam(prev => ({ ...prev, serving: true }));
+                            setRedTeam(prev => ({ ...prev, serving: false }));
+                        } else {
+                            setBlueTeam(prev => ({ ...prev, serving: false }));
+                            setRedTeam(prev => ({ ...prev, serving: true }));
+                        }
+                    }
+                }
+            };
+
+            // Função para salvar partida no histórico
+            const saveMatchToHistory = () => {
+                const blueSetsWon = blueTeam.sets.filter(s => s === 1).length;
+                const redSetsWon = redTeam.sets.filter(s => s === 1).length;
+                const winner = blueSetsWon === 3 ? blueTeam.name : redTeam.name;
+                
+                const matchResult = {
+                    blueTeam: blueTeam.name,
+                    redTeam: redTeam.name,
+                    finalScore: `${blueTeam.score} x ${redTeam.score}`,
+                    setsScore: `${blueSetsWon}-${redSetsWon}`,
+                    winner: winner,
+                    date: new Date().toISOString(),
+                    stats: {
+                        blue: blueTeam.stats,
+                        red: redTeam.stats
+                    },
+                    arbitro: currentMatch?.arbitroId || 'Árbitro'
+                };
+                
+                // Salvar no histórico
+                UserManager.addMatchToHistory(matchResult);
+                
+                // Atualizar status do evento
+                if (currentMatch?.id) {
+                    UserManager.updateEvent(currentMatch.id, {
+                        status: 'finalizado',
+                        result: `${blueTeam.name} ${blueSetsWon} x ${redSetsWon} ${redTeam.name}`,
+                        finalScore: `${blueTeam.score} x ${redTeam.score}`,
+                        sets: {
+                            blue: blueTeam.sets,
+                            red: redTeam.sets
+                        },
+                        stats: {
+                            blue: blueTeam.stats,
+                            red: redTeam.stats
+                        }
+                    });
+                }
+                
+                alert(`Partida finalizada! ${winner} venceu por ${blueSetsWon}-${redSetsWon} sets!`);
+                
+                // Chamar callback para finalizar
+                onFinishMatch(matchResult);
+            };
+
+            // Função para rotacionar time
+            const rotateTeam = (team) => {
+                const teamObj = team === 'blue' ? blueTeam : redTeam;
+                const newRotation = [
+                    teamObj.rotation[5], // Posição 2 vai para 1
+                    teamObj.rotation[0], // Posição 1 vai para 2
+                    teamObj.rotation[1], // Posição 6 vai para 3
+                    teamObj.rotation[2], // Posição 5 vai para 4
+                    teamObj.rotation[3], // Posição 4 vai para 5
+                    teamObj.rotation[4]  // Posição 3 vai para 6
+                ];
+                
+                if (team === 'blue') {
+                    setBlueTeam(prev => ({ ...prev, rotation: newRotation }));
+                } else {
+                    setRedTeam(prev => ({ ...prev, rotation: newRotation }));
+                }
+            };
+
+            // Função para atualizar estatísticas
+            const updateStat = (team, stat, change) => {
+                if (team === 'blue') {
+                    setBlueTeam(prev => ({
+                        ...prev,
+                        stats: {
+                            ...prev.stats,
+                            [stat]: Math.max(0, prev.stats[stat] + change)
+                        }
+                    }));
+                } else {
+                    setRedTeam(prev => ({
+                        ...prev,
+                        stats: {
+                            ...prev.stats,
+                            [stat]: Math.max(0, prev.stats[stat] + change)
+                        }
+                    }));
+                }
+            };
+
+            // Função para desfazer última ação
+            const undoAction = () => {
+                if (gameHistory.length > 0) {
+                    const lastAction = gameHistory[gameHistory.length - 1];
+                    setBlueTeam(prev => ({ ...prev, score: lastAction.blueScore }));
+                    setRedTeam(prev => ({ ...prev, score: lastAction.redScore }));
+                    setGameHistory(prev => prev.slice(0, -1));
+                }
+            };
+
+            // Função para abrir modal de edição
+            const openEditModal = (team) => {
+                setEditingTeam(team);
+                setEditingName(team === 'blue' ? blueTeam.name : redTeam.name);
+                setShowEditModal(true);
+            };
+
+            // Função para salvar nome do time
+            const saveTeamName = () => {
+                if (editingTeam === 'blue') {
+                    setBlueTeam(prev => ({ ...prev, name: editingName }));
+                } else {
+                    setRedTeam(prev => ({ ...prev, name: editingName }));
+                }
+                setShowEditModal(false);
+            };
+
+            // Função para finalizar partida manualmente
+            const finishMatchManually = () => {
+                const confirmEnd = confirm('Deseja finalizar a partida? Esta ação não pode ser desfeita.');
+                
+                if (confirmEnd) {
+                    // Salvar partida no histórico
+                    saveMatchToHistory();
+                }
+            };
+
+            return (
+                <>
+                    {/* Placar principal */}
+                    <div className="scoreboard">
+                        <div className="scoreboard-header">
+                            <span>Set {currentSet} de 5</span>
+                            <span>{isPaused ? 'JOGO PAUSADO' : 'EM ANDAMENTO'}</span>
+                        </div>
+                        
+                        <div className="sets-display">
+                            {[1, 2, 3, 4, 5].map((set) => (
+                                <div key={set} className={`set ${set <= currentSet ? 'active' : ''}`}>
+                                    {set <= currentSet ? (blueTeam.sets[set-1] || redTeam.sets[set-1] ? '✓' : set) : set}
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div className="score-display">
+                            <div className="team">
+                                <div className="team-name" onClick={() => openEditModal('blue')}>
+                                    {blueTeam.name} {blueTeam.serving && '●'}
+                                </div>
+                                <div className="team-score">{blueTeam.score}</div>
+                            </div>
+                            
+                            <div className="vs">VS</div>
+                            
+                            <div className="team">
+                                <div className="team-name" onClick={() => openEditModal('red')}>
+                                    {redTeam.name} {redTeam.serving && '●'}
+                                </div>
+                                <div className="team-score">{redTeam.score}</div>
+                            </div>
+                        </div>
+                        
+                        <div className="score-controls">
+                            <button className="score-btn" onClick={() => addPoint('blue')}>
+                                <i className="fas fa-plus"></i> {blueTeam.name}
+                            </button>
+                            <button className="score-btn" onClick={() => addPoint('red')}>
+                                <i className="fas fa-plus"></i> {redTeam.name}
+                            </button>
+                        </div>
+                        
+                        <button className="undo-btn" onClick={undoAction}>
+                            <i className="fas fa-undo"></i> Desfazer último ponto
+                        </button>
+                    </div>
+
+                    {/* Informações do jogo */}
+                    <div className="game-info">
+                        <div className="game-info-item">
+                            <div className="game-info-label">TEMPO</div>
+                            <div className="game-info-value">12:45</div>
+                        </div>
+                        <div className="game-info-item">
+                            <div className="game-info-label">SET</div>
+                            <div className="game-info-value">{currentSet}/5</div>
+                        </div>
+                        <div className="game-info-item">
+                            <div className="game-info-label">SAQUE</div>
+                            <div className="game-info-value">
+                                {blueTeam.serving ? blueTeam.name : redTeam.name}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Quadra de posições */}
+                    <div className="arbitration-advanced">
+                        <h3 style={{ marginBottom: '15px', color: 'var(--dark)' }}>Posições na Quadra</h3>
+                        <div className="court-grid">
+                            <div className="team-court red">
+                                {redTeam.rotation.map((pos, index) => (
+                                    <div key={index} className="court-position">
+                                        {pos}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="team-court blue">
+                                {blueTeam.rotation.map((pos, index) => (
+                                    <div key={index} className="court-position">
+                                        {pos}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div className="arbitration-controls">
+                            <button className="rotate-btn" onClick={() => rotateTeam('blue')}>
+                                <i className="fas fa-sync-alt"></i> Rotacionar Azul
+                            </button>
+                            <button className="rotate-btn" onClick={() => rotateTeam('red')}>
+                                <i className="fas fa-sync-alt"></i> Rotacionar Vermelho
+                            </button>
+                            <button className="serve-btn" onClick={() => setIsPaused(!isPaused)}>
+                                <i className={isPaused ? 'fas fa-play' : 'fas fa-pause'}></i> 
+                                {isPaused ? 'Continuar' : 'Pausar'}
+                            </button>
+                            <button className="reset-btn" onClick={() => {
+                                setBlueTeam(prev => ({ ...prev, score: 0 }));
+                                setRedTeam(prev => ({ ...prev, score: 0 }));
+                            }}>
+                                <i className="fas fa-redo"></i> Zerar Placar
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Estatísticas */}
+                    <div className="arbitration-advanced">
+                        <h3 style={{ marginBottom: '15px', color: 'var(--dark)' }}>Estatísticas</h3>
+                        <div className="stats-container">
+                            {/* Aces */}
+                            <div className="stat-card">
+                                <div className="stat-title">Aces</div>
+                                <div className="stat-value">
+                                    {blueTeam.stats.aces} - {redTeam.stats.aces}
+                                </div>
+                                <div className="stat-controls">
+                                    <button onClick={() => updateStat('blue', 'aces', 1)}>+ Azul</button>
+                                    <button onClick={() => updateStat('blue', 'aces', -1)}>- Azul</button>
+                                    <button onClick={() => updateStat('red', 'aces', 1)}>+ Verm</button>
+                                    <button onClick={() => updateStat('red', 'aces', -1)}>- Verm</button>
+                                </div>
+                            </div>
+                            
+                            {/* Bloqueios */}
+                            <div className="stat-card">
+                                <div className="stat-title">Bloqueios</div>
+                                <div className="stat-value">
+                                    {blueTeam.stats.blocks} - {redTeam.stats.blocks}
+                                </div>
+                                <div className="stat-controls">
+                                    <button onClick={() => updateStat('blue', 'blocks', 1)}>+ Azul</button>
+                                    <button onClick={() => updateStat('blue', 'blocks', -1)}>- Azul</button>
+                                    <button onClick={() => updateStat('red', 'blocks', 1)}>+ Verm</button>
+                                    <button onClick={() => updateStat('red', 'blocks', -1)}>- Verm</button>
+                                </div>
+                            </div>
+                            
+                            {/* Ataques */}
+                            <div className="stat-card">
+                                <div className="stat-title">Ataques</div>
+                                <div className="stat-value">
+                                    {blueTeam.stats.attacks} - {redTeam.stats.attacks}
+                                </div>
+                                <div className="stat-controls">
+                                    <button onClick={() => updateStat('blue', 'attacks', 1)}>+ Azul</button>
+                                    <button onClick={() => updateStat('blue', 'attacks', -1)}>- Azul</button>
+                                    <button onClick={() => updateStat('red', 'attacks', 1)}>+ Verm</button>
+                                    <button onClick={() => updateStat('red', 'attacks', -1)}>- Verm</button>
+                                </div>
+                            </div>
+                            
+                            {/* Erros */}
+                            <div className="stat-card">
+                                <div className="stat-title">Erros</div>
+                                <div className="stat-value">
+                                    {blueTeam.stats.errors} - {redTeam.stats.errors}
+                                </div>
+                                <div className="stat-controls">
+                                    <button onClick={() => updateStat('blue', 'errors', 1)}>+ Azul</button>
+                                    <button onClick={() => updateStat('blue', 'errors', -1)}>- Azul</button>
+                                    <button onClick={() => updateStat('red', 'errors', 1)}>+ Verm</button>
+                                    <button onClick={() => updateStat('red', 'errors', -1)}>- Verm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Ações da partida */}
+                    <div className="match-actions">
+                        <button className="btn" onClick={onBack}>
+                            <i className="fas fa-arrow-left"></i> Voltar
+                        </button>
+                        <button className="btn btn-secondary" onClick={finishMatchManually}>
+                            <i className="fas fa-flag-checkered"></i> Finalizar Partida
+                        </button>
+                    </div>
+
+                    {/* Modal de edição de nome do time */}
+                    {showEditModal && (
+                        <div className="edit-modal">
+                            <div className="edit-modal-content">
+                                <h3 style={{ marginBottom: '15px', color: 'var(--dark)' }}>
+                                    Editar Nome do Time
+                                </h3>
+                                <input
+                                    type="text"
+                                    className="edit-input"
+                                    value={editingName}
+                                    onChange={(e) => setEditingName(e.target.value)}
+                                    placeholder="Digite o novo nome"
+                                />
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <button 
+                                        className="btn" 
+                                        onClick={saveTeamName}
+                                        style={{ flex: 1 }}
+                                    >
+                                        Salvar
+                                    </button>
+                                    <button 
+                                        className="btn btn-secondary" 
+                                        onClick={() => setShowEditModal(false)}
+                                        style={{ flex: 1 }}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        function App() {
+            // Estado para controlar a tela atual (login, cadastro ou app)
+            const [currentScreen, setCurrentScreen] = useState('login');
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [currentUser, setCurrentUser] = useState(null);
+            
+            // Estados para formulários
+            const [loginData, setLoginData] = useState({
+                email: '',
+                password: ''
+            });
+            
+            const [registerData, setRegisterData] = useState({
+                name: '',
+                email: '',
+                password: '',
+                confirmPassword: ''
+            });
+            
+            const [errors, setErrors] = useState({});
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [successMessage, setSuccessMessage] = useState('');
+            
+            // Estado para o app de arbitragem
+            const [activePage, setActivePage] = useState('home');
+            const [events, setEvents] = useState([]);
+            const [settings, setSettings] = useState(UserManager.getSettings());
+            const [matchHistory, setMatchHistory] = useState([]);
+            const [currentMatch, setCurrentMatch] = useState(null);
+            const [showArbitration, setShowArbitration] = useState(false);
+            
+            // Estado para o modal de criar evento
+            const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+            const [newEventData, setNewEventData] = useState({
+                teamA: '',
+                teamB: '',
+                date: '',
+                time: '',
+                location: '',
+                category: 'adulto',
+                notes: ''
+            });
+
+            // Aplicar configurações (modo escuro)
+            useEffect(() => {
+                if (settings.darkMode) {
+                    document.documentElement.style.setProperty('--login-bg', '#121212');
+                    document.documentElement.style.setProperty('--card-bg', '#1e1e1e');
+                    document.documentElement.style.setProperty('--light', '#2d2d2d');
+                    document.documentElement.style.setProperty('--dark', '#f0f0f0');
+                    document.documentElement.style.setProperty('--gray', '#a0a0a0');
+                    document.documentElement.style.setProperty('--gray-light', '#404040');
+                } else {
+                    document.documentElement.style.setProperty('--login-bg', '#f5f7fa');
+                    document.documentElement.style.setProperty('--card-bg', '#ffffff');
+                    document.documentElement.style.setProperty('--light', '#f6f6ff');
+                    document.documentElement.style.setProperty('--dark', '#2d2b55');
+                    document.documentElement.style.setProperty('--gray', '#8a8aa3');
+                    document.documentElement.style.setProperty('--gray-light', '#e2e2f0');
+                }
+            }, [settings.darkMode]);
+
+            // Verificar se há usuário logado ao carregar
+            useEffect(() => {
+                const savedUser = localStorage.getItem('volleyRefCurrentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    setCurrentUser(userData);
+                    setIsLoggedIn(true);
+                    
+                    // Carregar eventos do usuário
+                    loadUserEvents(userData.id);
+                    
+                    // Carregar histórico de partidas
+                    loadMatchHistory();
+                }
+                
+                // Inicializar com um usuário de exemplo se não houver usuários
+                const users = UserManager.getUsers();
+                if (users.length === 0) {
+                    const exampleUser = {
+                        id: Date.now().toString(),
+                        name: 'Árbitro Exemplo',
+                        email: 'arbitro@exemplo.com',
+                        password: '123456',
+                        role: 'árbitro'
+                    };
+                    UserManager.addUser(exampleUser);
+                }
+            }, []);
+
+            // Carregar eventos do usuário
+            const loadUserEvents = (userId) => {
+                const userEvents = UserManager.getEventsByUser(userId);
+                setEvents(userEvents);
+            };
+
+            // Carregar histórico de partidas
+            const loadMatchHistory = () => {
+                const history = UserManager.getMatchHistory();
+                setMatchHistory(history);
+            };
+
+            // Manipuladores de formulário de login
+            const handleLoginChange = (e) => {
+                const { name, value } = e.target;
+                setLoginData(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+                
+                // Limpar erro do campo ao modificar
+                if (errors[name]) {
+                    setErrors(prev => ({
+                        ...prev,
+                        [name]: ''
+                    }));
+                }
+            };
+
+            const validateLogin = () => {
+                const newErrors = {};
+                
+                if (!loginData.email) {
+                    newErrors.email = 'E-mail é obrigatório';
+                } else if (!/\S+@\S+\.\S+/.test(loginData.email)) {
+                    newErrors.email = 'E-mail inválido';
+                }
+                
+                if (!loginData.password) {
+                    newErrors.password = 'Senha é obrigatória';
+                } else if (loginData.password.length < 6) {
+                    newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+                }
+                
+                return newErrors;
+            };
+
+            const handleLoginSubmit = (e) => {
+                e.preventDefault();
+                const newErrors = validateLogin();
+                
+                if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    return;
+                }
+                
+                setIsSubmitting(true);
+                
+                // Simular tempo de processamento
+                setTimeout(() => {
+                    const result = UserManager.authenticate(loginData.email, loginData.password);
+                    
+                    if (result.success) {
+                        setCurrentUser(result.user);
+                        setIsLoggedIn(true);
+                        localStorage.setItem('volleyRefCurrentUser', JSON.stringify(result.user));
+                        setSuccessMessage('Login realizado com sucesso!');
+                        setErrors({});
+                        
+                        // Carregar eventos do usuário
+                        loadUserEvents(result.user.id);
+                        
+                        // Carregar histórico
+                        loadMatchHistory();
+                    } else {
+                        setErrors({ general: result.message });
+                    }
+                    
+                    setIsSubmitting(false);
+                }, 1000);
+            };
+
+            // Manipuladores de formulário de cadastro
+            const handleRegisterChange = (e) => {
+                const { name, value } = e.target;
+                setRegisterData(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+                
+                // Limpar erro do campo ao modificar
+                if (errors[name]) {
+                    setErrors(prev => ({
+                        ...prev,
+                        [name]: ''
+                    }));
+                }
+            };
+
+            const validateRegister = () => {
+                const newErrors = {};
+                
+                if (!registerData.name) {
+                    newErrors.name = 'Nome é obrigatório';
+                } else if (registerData.name.length < 3) {
+                    newErrors.name = 'Nome deve ter pelo menos 3 caracteres';
+                }
+                
+                if (!registerData.email) {
+                    newErrors.email = 'E-mail é obrigatório';
+                } else if (!/\S+@\S+\.\S+/.test(registerData.email)) {
+                    newErrors.email = 'E-mail inválido';
+                }
+                
+                if (!registerData.password) {
+                    newErrors.password = 'Senha é obrigatória';
+                } else if (registerData.password.length < 6) {
+                    newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+                }
+                
+                if (!registerData.confirmPassword) {
+                    newErrors.confirmPassword = 'Confirmação de senha é obrigatória';
+                } else if (registerData.password !== registerData.confirmPassword) {
+                    newErrors.confirmPassword = 'As senhas não coincidem';
+                }
+                
+                return newErrors;
+            };
+
+            const handleRegisterSubmit = (e) => {
+                e.preventDefault();
+                const newErrors = validateRegister();
+                
+                if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    return;
+                }
+                
+                setIsSubmitting(true);
+                
+                // Simular tempo de processamento
+                setTimeout(() => {
+                    const newUser = {
+                        id: Date.now().toString(),
+                        name: registerData.name,
+                        email: registerData.email,
+                        password: registerData.password,
+                        role: 'árbitro',
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    const result = UserManager.addUser(newUser);
+                    
+                    if (result.success) {
+                        setSuccessMessage(result.message);
+                        
+                        // Limpar formulário
+                        setRegisterData({
+                            name: '',
+                            email: '',
+                            password: '',
+                            confirmPassword: ''
+                        });
+                        
+                        // Voltar para tela de login após 2 segundos
+                        setTimeout(() => {
+                            setCurrentScreen('login');
+                            setSuccessMessage('');
+                        }, 2000);
+                    } else {
+                        setErrors({ general: result.message });
+                    }
+                    
+                    setIsSubmitting(false);
+                }, 1000);
+            };
+
+            // Função para fazer logout
+            const handleLogout = () => {
+                setCurrentUser(null);
+                setIsLoggedIn(false);
+                setActivePage('home');
+                localStorage.removeItem('volleyRefCurrentUser');
+                setLoginData({ email: '', password: '' });
+                setSuccessMessage('Logout realizado com sucesso!');
+            };
+
+            // Função para navegar entre páginas no app
+            const navigateTo = (page) => {
+                setActivePage(page);
+                setShowArbitration(false);
+            };
+
+            // Função para abrir configurações
+            const openSettings = () => {
+                setActivePage('system-settings');
+            };
+
+            // Função para iniciar arbitragem de um evento
+            const startArbitration = (event) => {
+                setCurrentMatch(event);
+                setShowArbitration(true);
+                setActivePage('arbitragem');
+            };
+
+            // Função para finalizar uma partida
+            const handleFinishMatch = (matchResult) => {
+                // Atualizar histórico
+                loadMatchHistory();
+                
+                // Atualizar eventos
+                loadUserEvents(currentUser.id);
+                
+                // Voltar para a tela inicial
+                setShowArbitration(false);
+                setActivePage('home');
+                setCurrentMatch(null);
+                
+                // Mostrar mensagem de sucesso
+                setSuccessMessage(`Partida ${matchResult.blueTeam} x ${matchResult.redTeam} finalizada e salva no histórico!`);
+                setTimeout(() => setSuccessMessage(''), 3000);
+            };
+
+            // Funções para criar evento
+            const handleCreateEventClick = () => {
+                setShowCreateEventModal(true);
+            };
+
+            const handleNewEventChange = (e) => {
+                const { name, value } = e.target;
+                setNewEventData(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+            };
+
+            const validateNewEvent = () => {
+                const newErrors = {};
+                
+                if (!newEventData.teamA.trim()) {
+                    newErrors.teamA = 'Time A é obrigatório';
+                }
+                
+                if (!newEventData.teamB.trim()) {
+                    newErrors.teamB = 'Time B é obrigatório';
+                }
+                
+                if (!newEventData.date) {
+                    newErrors.date = 'Data é obrigatória';
+                }
+                
+                if (!newEventData.time) {
+                    newErrors.time = 'Horário é obrigatório';
+                }
+                
+                if (!newEventData.location.trim()) {
+                    newErrors.location = 'Local é obrigatório';
+                }
+                
+                return newErrors;
+            };
+
+            const handleCreateEventSubmit = (e) => {
+                e.preventDefault();
+                const newErrors = validateNewEvent();
+                
+                if (Object.keys(newErrors).length > 0) {
+                    setErrors(newErrors);
+                    return;
+                }
+                
+                const newEvent = {
+                    ...newEventData,
+                    createdBy: currentUser.id,
+                    arbitroId: currentUser.id,
+                    status: 'agendado',
+                    sets: []
+                };
+                
+                const result = UserManager.addEvent(newEvent);
+                
+                if (result.success) {
+                    // Atualizar lista de eventos
+                    setEvents(prev => [...prev, result.event]);
+                    
+                    // Limpar formulário
+                    setNewEventData({
+                        teamA: '',
+                        teamB: '',
+                        date: '',
+                        time: '',
+                        location: '',
+                        category: 'adulto',
+                        notes: ''
+                    });
+                    
+                    // Fechar modal e mostrar mensagem de sucesso
+                    setShowCreateEventModal(false);
+                    setSuccessMessage('Evento criado com sucesso!');
+                    
+                    // Navegar para a página de arbitragem do novo evento
+                    setTimeout(() => {
+                        setActivePage('home');
+                        setSuccessMessage('');
+                    }, 1000);
+                }
+            };
+
+            // Funções para gerenciar configurações
+            const handleSettingChange = (settingName, value) => {
+                const newSettings = { ...settings, [settingName]: value };
+                setSettings(newSettings);
+                UserManager.updateSettings(newSettings);
+                
+                // Feedback para o usuário
+                if (settingName === 'darkMode') {
+                    setSuccessMessage(value ? 'Modo escuro ativado' : 'Modo escuro desativado');
+                    setTimeout(() => setSuccessMessage(''), 2000);
+                }
+            };
+
+            // Renderizar modal de criar evento
+            const renderCreateEventModal = () => {
+                if (!showCreateEventModal) return null;
+                
+                return (
+                    <div className="modal-overlay" onClick={() => setShowCreateEventModal(false)}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <h2>Criar Novo Evento</h2>
+                                <button className="close-modal" onClick={() => setShowCreateEventModal(false)}>
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <form onSubmit={handleCreateEventSubmit}>
+                                <div className="form-group">
+                                    <label htmlFor="teamA">Time A</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-users"></i>
+                                        <input 
+                                            type="text" 
+                                            id="teamA"
+                                            name="teamA"
+                                            placeholder="Ex: Azulões FC" 
+                                            value={newEventData.teamA}
+                                            onChange={handleNewEventChange}
+                                            className={errors.teamA ? 'input-error' : ''}
+                                        />
+                                    </div>
+                                    {errors.teamA && (
+                                        <div className="error-message">
+                                            <i className="fas fa-exclamation-circle"></i>
+                                            {errors.teamA}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="teamB">Time B</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-users"></i>
+                                        <input 
+                                            type="text" 
+                                            id="teamB"
+                                            name="teamB"
+                                            placeholder="Ex: Vermelhões SC" 
+                                            value={newEventData.teamB}
+                                            onChange={handleNewEventChange}
+                                            className={errors.teamB ? 'input-error' : ''}
+                                        />
+                                    </div>
+                                    {errors.teamB && (
+                                        <div className="error-message">
+                                            <i className="fas fa-exclamation-circle"></i>
+                                            {errors.teamB}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="date">Data</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-calendar"></i>
+                                        <input 
+                                            type="date" 
+                                            id="date"
+                                            name="date"
+                                            value={newEventData.date}
+                                            onChange={handleNewEventChange}
+                                            className={errors.date ? 'input-error' : ''}
+                                        />
+                                    </div>
+                                    {errors.date && (
+                                        <div className="error-message">
+                                            <i className="fas fa-exclamation-circle"></i>
+                                            {errors.date}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="time">Horário</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-clock"></i>
+                                        <input 
+                                            type="time" 
+                                            id="time"
+                                            name="time"
+                                            value={newEventData.time}
+                                            onChange={handleNewEventChange}
+                                            className={errors.time ? 'input-error' : ''}
+                                        />
+                                    </div>
+                                    {errors.time && (
+                                        <div className="error-message">
+                                            <i className="fas fa-exclamation-circle"></i>
+                                            {errors.time}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="location">Local</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-map-marker-alt"></i>
+                                        <input 
+                                            type="text" 
+                                            id="location"
+                                            name="location"
+                                            placeholder="Ex: Ginásio Municipal" 
+                                            value={newEventData.location}
+                                            onChange={handleNewEventChange}
+                                            className={errors.location ? 'input-error' : ''}
+                                        />
+                                    </div>
+                                    {errors.location && (
+                                        <div className="error-message">
+                                            <i className="fas fa-exclamation-circle"></i>
+                                            {errors.location}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="category">Categoria</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-tag"></i>
+                                        <select 
+                                            id="category"
+                                            name="category"
+                                            value={newEventData.category}
+                                            onChange={handleNewEventChange}
+                                        >
+                                            <option value="adulto">Adulto</option>
+                                            <option value="juvenil">Juvenil</option>
+                                            <option value="infantil">Infantil</option>
+                                            <option value="feminino">Feminino</option>
+                                            <option value="masculino">Masculino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label htmlFor="notes">Observações</label>
+                                    <div className="input-with-icon">
+                                        <i className="fas fa-sticky-note"></i>
+                                        <textarea 
+                                            id="notes"
+                                            name="notes"
+                                            placeholder="Observações adicionais sobre o evento" 
+                                            value={newEventData.notes}
+                                            onChange={handleNewEventChange}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" className="primary-button">
+                                    <i className="fas fa-plus-circle"></i> Criar Evento
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            };
+
+            // Renderizar tela de login
+            if (!isLoggedIn && currentScreen === 'login') {
+                return (
+                    <div className="main-container">
+                        <div className="main-header">
+                            <h1>VolleyRef</h1>
+                            <p>Sistema de Arbitragem de Vôlei</p>
+                        </div>
+                        
+                        <div className="welcome-message">
+                            Faça login para acessar o sistema
+                        </div>
+                        
+                        {successMessage && (
+                            <div className="success-message">
+                                <i className="fas fa-check-circle"></i>
+                                {successMessage}
+                            </div>
+                        )}
+                        
+                        <form className="form-container" onSubmit={handleLoginSubmit}>
+                            {errors.general && (
+                                <div className="error-message">
+                                    <i className="fas fa-exclamation-circle"></i>
+                                    {errors.general}
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
+                                <label htmlFor="login-email">E-mail</label>
+                                <div className="input-with-icon">
+                                    <i className="fas fa-envelope"></i>
+                                    <input 
+                                        type="email" 
+                                        id="login-email"
+                                        name="email"
+                                        placeholder="Digite seu e-mail" 
+                                        value={loginData.email}
+                                        onChange={handleLoginChange}
+                                        className={errors.email ? 'input-error' : ''}
+                                    />
+                                </div>
+                                {errors.email && (
+                                    <div className="error-message">
+                                        <i className="fas fa-exclamation-circle"></i>
+                                        {errors.email}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="login-password">Senha</label>
+                                <div className="input-with-icon">
+                                    <i className="fas fa-lock"></i>
+                                    <input 
+                                        type="password" 
+                                        id="login-password"
+                                        name="password"
+                                        placeholder="Digite sua senha" 
+                                        value={loginData.password}
+                                        onChange={handleLoginChange}
+                                        className={errors.password ? 'input-error' : ''}
+                                    />
+                                </div>
+                                {errors.password && (
+                                    <div className="error-message">
+                                        <i className="fas fa-exclamation-circle"></i>
+                                        {errors.password}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="form-options">
+                                <div className="remember-me">
+                                    <input type="checkbox" id="remember" />
+                                    <label htmlFor="remember">Lembrar-me</label>
+                                </div>
+                                <span className="forgot-password">Esqueci a senha</span>
+                            </div>
+                            
+                            <button 
+                                type="submit" 
+                                className={`primary-button ${isSubmitting ? 'button-disabled' : ''}`}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <i className="fas fa-spinner fa-spin"></i> Entrando...
+                                    </>
+                                ) : (
+                                    'Entrar no Sistema'
+                                )}
+                            </button>
+                            
+                            <div className="form-link">
+                                Não tem uma conta? <a onClick={() => setCurrentScreen('register')}>Cadastre-se agora</a>
+                            </div>
+                            
+                            <div className="divider">
+                                <span>Dados de acesso de teste</span>
+                            </div>
+                            
+                            <div style={{ 
+                                backgroundColor: 'rgba(79, 109, 245, 0.1)', 
+                                padding: '15px', 
+                                borderRadius: '10px',
+                                fontSize: '13px',
+                                color: 'var(--dark)',
+                                marginBottom: '20px'
+                            }}>
+                                <p><strong>E-mail:</strong> arbitro@exemplo.com</p>
+                                <p><strong>Senha:</strong> 123456</p>
+                            </div>
+                        </form>
+                        
+                        <div className="footer">
+                            &copy; 2023 VolleyRef - Sistema de Arbitragem. Todos os direitos reservados.
+                        </div>
+                    </div>
+                );
+            }
+
+            // Renderizar tela de cadastro
+            if (!isLoggedIn && currentScreen === 'register') {
+                return (
+                    <div className="main-container">
+                        <div className="main-header">
+                            <h1>Criar Nova Conta</h1>
+                            <p>Cadastre-se no VolleyRef</p>
+                        </div>
+                        
+                        {successMessage && (
+                            <div className="success-message">
+                                <i className="fas fa-check-circle"></i>
+                                {successMessage}
+                            </div>
+                        )}
+                        
+                        <form className="form-container" onSubmit={handleRegisterSubmit}>
+                            {errors.general && (
+                                <div className="error-message">
+                                    <i className="fas fa-exclamation-circle"></i>
+                                    {errors.general}
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
+                                <label htmlFor="register-name">Nome Completo</label>
+                                <div className="input-with-icon">
+                                    <i className="fas fa-user"></i>
+                                    <input 
+                                        type="text" 
+                                        id="register-name"
+                                        name="name"
+                                        placeholder="Digite seu nome completo" 
+                                        value={registerData.name}
+                                        onChange={handleRegisterChange}
+                                        className={errors.name ? 'input-error' : ''}
+                                    />
+                                </div>
+                                {errors.name && (
+                                    <div className="error-message">
+                                        <i className="fas fa-exclamation-circle"></i>
+                                        {errors.name}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="register-email">E-mail</label>
+                                <div className="input-with-icon">
+                                    <i className="fas fa-envelope"></i>
+                                    <input 
+                                        type="email" 
+                                        id="register-email"
+                                        name="email"
+                                        placeholder="Digite seu e-mail" 
+                                        value={registerData.email}
+                                        onChange={handleRegisterChange}
+                                        className={errors.email ? 'input-error' : ''}
+                                    />
+                                </div>
+                                {errors.email && (
+                                    <div className="error-message">
+                                        <i className="fas fa-exclamation-circle"></i>
+                                        {errors.email}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="register-password">Senha</label>
+                                <div className="input-with-icon">
+                                    <i className="fas fa-lock"></i>
+                                    <input 
+                                        type="password" 
+                                        id="register-password"
+                                        name="password"
+                                        placeholder="Digite uma senha (mínimo 6 caracteres)" 
+                                        value={registerData.password}
+                                        onChange={handleRegisterChange}
+                                        className={errors.password ? 'input-error' : ''}
+                                    />
+                                </div>
+                                {errors.password && (
+                                    <div className="error-message">
+                                        <i className="fas fa-exclamation-circle"></i>
+                                        {errors.password}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="form-group">
+                                <label htmlFor="register-confirmPassword">Confirmar Senha</label>
+                                <div className="input-with-icon">
+                                    <i className="fas fa-lock"></i>
+                                    <input 
+                                        type="password" 
+                                        id="register-confirmPassword"
+                                        name="confirmPassword"
+                                        placeholder="Confirme sua senha" 
+                                        value={registerData.confirmPassword}
+                                        onChange={handleRegisterChange}
+                                        className={errors.confirmPassword ? 'input-error' : ''}
+                                    />
+                                </div>
+                                {errors.confirmPassword && (
+                                    <div className="error-message">
+                                        <i className="fas fa-exclamation-circle"></i>
+                                        {errors.confirmPassword}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <button 
+                                type="submit" 
+                                className={`primary-button ${isSubmitting ? 'button-disabled' : ''}`}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <i className="fas fa-spinner fa-spin"></i> Cadastrando...
+                                    </>
+                                ) : (
+                                    'Criar Conta'
+                                )}
+                            </button>
+                            
+                            <div className="form-link">
+                                Já tem uma conta? <a onClick={() => setCurrentScreen('login')}>Faça login</a>
+                            </div>
+                        </form>
+                        
+                        <div className="footer">
+                            &copy; 2023 VolleyRef - Sistema de Arbitragem. Todos os direitos reservados.
+                        </div>
+                    </div>
+                );
+            }
+
+            // Renderizar app de arbitragem (usuário logado)
+            return (
+                <>
+                    <div className="app-container active">
+                        {/* Barra de navegação superior */}
+                        <div className="navbar">
+                            {/* Botão de Configurações (esquerda) */}
+                            <button className="nav-btn settings-btn" onClick={openSettings}>
+                                <i className="fas fa-cog"></i>
+                            </button>
+                            
+                            {/* Título Central */}
+                            <div className="nav-title">
+                                {showArbitration ? 'Arbitragem' : 
+                                 activePage === 'home' ? 'VolleyRef' : 
+                                 activePage === 'arbitragem' ? 'Arbitrar' : 
+                                 activePage === 'detalhes' ? 'Detalhes' : 
+                                 activePage === 'historico' ? 'Histórico' : 
+                                 activePage === 'config' ? 'Perfil' : 
+                                 activePage === 'system-settings' ? 'Configurações' : 'VolleyRef'}
+                            </div>
+                            
+                            {/* Ações da Direita */}
+                            <div className="nav-actions">
+                                <div className="notification-badge">
+                                    <i className="fas fa-bell"></i>
+                                    <div className="badge">3</div>
+                                </div>
+                                
+                                {/* Botão de Logout (direita) */}
+                                <button className="nav-btn logout-btn" onClick={handleLogout}>
+                                    <i className="fas fa-sign-out-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Container de conteúdo */}
+                        <div className="content">
+                            {/* TELA DE ARBITRAGEM AVANÇADA */}
+                            {showArbitration ? (
+                                <AdvancedArbitration 
+                                    currentMatch={currentMatch}
+                                    onFinishMatch={handleFinishMatch}
+                                    onBack={() => {
+                                        setShowArbitration(false);
+                                        setActivePage('home');
+                                    }}
+                                />
+                            ) : (
+                                <>
+                                    {/* TELA 1 - PARTIDAS */}
+                                    <div className={`page ${activePage === 'home' ? 'active' : ''}`} id="home">
+                                        <h2 className="section-title">Bem-vindo, {currentUser?.name}</h2>
+                                        <p style={{color: 'var(--gray)', marginBottom: '20px'}}>Partidas de Hoje</p>
+                                        
+                                        {successMessage && (
+                                            <div className="success-message" style={{marginBottom: '20px'}}>
+                                                <i className="fas fa-check-circle"></i>
+                                                {successMessage}
+                                            </div>
+                                        )}
+                                        
+                                        <div className="match-list">
+                                            {events.length > 0 ? (
+                                                events.map(event => (
+                                                    <div key={event.id} className="match-card">
+                                                        <img className="match-image" src="https://images.pexels.com/photos/114296/pexels-photo-114296.jpeg" alt="Partida de vôlei" />
+                                                        <div className="match-info">
+                                                            <div className="match-teams">{event.teamA} x {event.teamB}</div>
+                                                            <div className="match-details">
+                                                                <span><i className="far fa-clock"></i> {event.time}</span>
+                                                                <span><i className="fas fa-map-marker-alt"></i> {event.location}</span>
+                                                            </div>
+                                                            <div className={`match-status ${
+                                                                event.status === 'finalizado' ? 'status-finished' : 
+                                                                event.status === 'agendado' ? 'status-scheduled' : 
+                                                                'status-live'
+                                                            }`}>
+                                                                {event.status === 'finalizado' ? 'FINALIZADO' : 
+                                                                 event.status === 'agendado' ? 'AGENDADO' : 
+                                                                 'EM ANDAMENTO'}
+                                                            </div>
+                                                            {event.status === 'agendado' ? (
+                                                                <button className="btn" onClick={() => startArbitration(event)}>
+                                                                    <i className="fas fa-play-circle"></i> Iniciar Arbitragem
+                                                                </button>
+                                                            ) : event.status === 'finalizado' ? (
+                                                                <button className="btn btn-accent" onClick={() => navigateTo('detalhes')}>
+                                                                    <i className="fas fa-info-circle"></i> Ver Resultado
+                                                                </button>
+                                                            ) : (
+                                                                <button className="btn btn-secondary" onClick={() => startArbitration(event)}>
+                                                                    <i className="fas fa-redo"></i> Continuar Arbitragem
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div style={{textAlign: 'center', padding: '40px 20px', color: 'var(--gray)'}}>
+                                                    <i className="fas fa-volleyball-ball" style={{fontSize: '50px', marginBottom: '20px', opacity: 0.3}}></i>
+                                                    <p>Nenhum evento criado ainda</p>
+                                                    <p style={{fontSize: '14px', marginTop: '10px'}}>Clique no botão "+" para criar seu primeiro evento</p>
+                                                </div>
+                                            )}
+
+                                            {/* Eventos de exemplo */}
+                                            <div className="match-card" onClick={() => navigateTo('detalhes')}>
+                                                <img className="match-image" src="https://images.pexels.com/photos/1277213/pexels-photo-1277213.jpeg" alt="Partida de vôlei" />
+                                                <div className="match-info">
+                                                    <div className="match-teams">Verdes da Serra x Amarelos FC</div>
+                                                    <div className="match-details">
+                                                        <span><i className="far fa-clock"></i> 16:30</span>
+                                                        <span><i className="fas fa-map-marker-alt"></i> Arena Municipal</span>
+                                                    </div>
+                                                    <div className="match-status status-finished">FINALIZADO</div>
+                                                    <button className="btn btn-accent" onClick={() => navigateTo('detalhes')}>
+                                                        <i className="fas fa-info-circle"></i> Ver Detalhes
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* TELA 2 - DETALHES */}
+                                    <div className={`page ${activePage === 'detalhes' ? 'active' : ''}`} id="detalhes">
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-volleyball-ball"></i> Informações da Partida</h3>
+                                            
+                                            <div className="detail-item">
+                                                <span className="detail-label">Modalidade:</span>
+                                                <span className="detail-value">Vôlei de Quadra</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Categoria:</span>
+                                                <span className="detail-value">Adulto Masculino</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Local:</span>
+                                                <span className="detail-value">Ginásio Municipal</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Data e Hora:</span>
+                                                <span className="detail-value">15/06/2023 - 16:30</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Status:</span>
+                                                <span className="detail-value"><span className="match-status status-finished">FINALIZADO</span></span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Árbitro Principal:</span>
+                                                <span className="detail-value">{currentUser?.name}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <button className="btn" onClick={() => navigateTo('home')}>
+                                            <i className="fas fa-arrow-left"></i> Voltar para Partidas
+                                        </button>
+                                    </div>
+
+                                    {/* TELA 3 - HISTÓRICO */}
+                                    <div className={`page ${activePage === 'historico' ? 'active' : ''}`} id="historico">
+                                        <h2 className="section-title">Histórico de Partidas</h2>
+                                        
+                                        {matchHistory.length === 0 ? (
+                                            <div style={{textAlign: 'center', padding: '40px 20px', color: 'var(--gray)'}}>
+                                                <i className="fas fa-history" style={{fontSize: '50px', marginBottom: '20px', opacity: 0.3}}></i>
+                                                <p>Nenhuma partida no histórico</p>
+                                                <p style={{fontSize: '14px', marginTop: '10px'}}>Finalize uma partida para ver o histórico aqui</p>
+                                            </div>
+                                        ) : (
+                                            <div className="history-list">
+                                                {matchHistory.map((match, index) => (
+                                                    <div key={index} className="history-item">
+                                                        <div className="history-teams">
+                                                            <span>{match.blueTeam} x {match.redTeam}</span>
+                                                            <span className="history-result">{match.setsScore}</span>
+                                                        </div>
+                                                        <div className="history-date">
+                                                            {new Date(match.date).toLocaleDateString('pt-BR')} - 
+                                                            {new Date(match.date).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}
+                                                        </div>
+                                                        <div className="history-details">
+                                                            <span>Placar: {match.finalScore}</span>
+                                                            <span>Vencedor: {match.winner}</span>
+                                                        </div>
+                                                        <div style={{marginTop: '10px', fontSize: '12px', color: 'var(--gray)'}}>
+                                                            Aces: {match.stats?.blue?.aces || 0}-{match.stats?.red?.aces || 0} | 
+                                                            Bloqueios: {match.stats?.blue?.blocks || 0}-{match.stats?.red?.blocks || 0} | 
+                                                            Ataques: {match.stats?.blue?.attacks || 0}-{match.stats?.red?.attacks || 0}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        
+                                        <button className="btn" onClick={() => navigateTo('home')}>
+                                            <i className="fas fa-arrow-left"></i> Voltar para Partidas
+                                        </button>
+                                    </div>
+
+                                    {/* TELA 4 - PERFIL/CONFIGURAÇÕES */}
+                                    <div className={`page ${activePage === 'config' ? 'active' : ''}`} id="config">
+                                        <h2 className="section-title">Meu Perfil</h2>
+                                        
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-user"></i> Informações Pessoais</h3>
+                                            
+                                            <div className="detail-item">
+                                                <span className="detail-label">Nome:</span>
+                                                <span className="detail-value">{currentUser?.name}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">E-mail:</span>
+                                                <span className="detail-value">{currentUser?.email}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Tipo de Conta:</span>
+                                                <span className="detail-value">Árbitro</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Data de Cadastro:</span>
+                                                <span className="detail-value">15/06/2023</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-chart-line"></i> Estatísticas</h3>
+                                            
+                                            <div className="detail-item">
+                                                <span className="detail-label">Eventos Criados:</span>
+                                                <span className="detail-value">{events.length}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Partidas Arbitradas:</span>
+                                                <span className="detail-value">{matchHistory.length}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Avaliação Média:</span>
+                                                <span className="detail-value">4.8/5.0</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <button className="btn btn-secondary" onClick={handleLogout}>
+                                            <i className="fas fa-sign-out-alt"></i> Sair da Conta
+                                        </button>
+                                    </div>
+
+                                    {/* TELA 5 - CONFIGURAÇÕES DO SISTEMA */}
+                                    <div className={`page ${activePage === 'system-settings' ? 'active' : ''}`} id="system-settings">
+                                        <h2 className="section-title">Configurações do Sistema</h2>
+                                        
+                                        {successMessage && (
+                                            <div className="success-message">
+                                                <i className="fas fa-check-circle"></i>
+                                                {successMessage}
+                                            </div>
+                                        )}
+                                        
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-palette"></i> Aparência</h3>
+                                            
+                                            <div className="settings-list">
+                                                <div className="settings-item">
+                                                    <div className="settings-label">
+                                                        <i className="fas fa-moon"></i>
+                                                        <span>Modo Escuro</span>
+                                                    </div>
+                                                    <label className="toggle-switch">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={settings.darkMode}
+                                                            onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
+                                                        />
+                                                        <span className="toggle-slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-bell"></i> Notificações</h3>
+                                            
+                                            <div className="settings-list">
+                                                <div className="settings-item">
+                                                    <div className="settings-label">
+                                                        <i className="fas fa-bell"></i>
+                                                        <span>Notificações</span>
+                                                    </div>
+                                                    <label className="toggle-switch">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={settings.notifications}
+                                                            onChange={(e) => handleSettingChange('notifications', e.target.checked)}
+                                                        />
+                                                        <span className="toggle-slider"></span>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div className="settings-item">
+                                                    <div className="settings-label">
+                                                        <i className="fas fa-volume-up"></i>
+                                                        <span>Efeitos Sonoros</span>
+                                                    </div>
+                                                    <label className="toggle-switch">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={settings.soundEffects}
+                                                            onChange={(e) => handleSettingChange('soundEffects', e.target.checked)}
+                                                        />
+                                                        <span className="toggle-slider"></span>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div className="settings-item">
+                                                    <div className="settings-label">
+                                                        <i className="fas fa-vibrate"></i>
+                                                        <span>Vibração</span>
+                                                    </div>
+                                                    <label className="toggle-switch">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={settings.vibration}
+                                                            onChange={(e) => handleSettingChange('vibration', e.target.checked)}
+                                                        />
+                                                        <span className="toggle-slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-cogs"></i> Geral</h3>
+                                            
+                                            <div className="settings-list">
+                                                <div className="settings-item">
+                                                    <div className="settings-label">
+                                                        <i className="fas fa-save"></i>
+                                                        <span>Salvamento Automático</span>
+                                                    </div>
+                                                    <label className="toggle-switch">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={settings.autoSave}
+                                                            onChange={(e) => handleSettingChange('autoSave', e.target.checked)}
+                                                        />
+                                                        <span className="toggle-slider"></span>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div className="settings-item">
+                                                    <div className="settings-label">
+                                                        <i className="fas fa-language"></i>
+                                                        <span>Idioma</span>
+                                                    </div>
+                                                    <div>
+                                                        <select 
+                                                            style={{
+                                                                padding: '8px 12px',
+                                                                borderRadius: '8px',
+                                                                border: '1px solid var(--gray-light)',
+                                                                backgroundColor: 'var(--light)',
+                                                                color: 'var(--dark)'
+                                                            }}
+                                                            value={settings.language}
+                                                            onChange={(e) => handleSettingChange('language', e.target.value)}
+                                                        >
+                                                            <option value="pt-br">Português (Brasil)</option>
+                                                            <option value="en">English</option>
+                                                            <option value="es">Español</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="detail-section">
+                                            <h3 className="detail-title"><i className="fas fa-info-circle"></i> Sobre</h3>
+                                            
+                                            <div className="detail-item">
+                                                <span className="detail-label">Versão:</span>
+                                                <span className="detail-value">1.2.0</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Desenvolvedor:</span>
+                                                <span className="detail-value">VolleyRef Team</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <span className="detail-label">Contato:</span>
+                                                <span className="detail-value">suporte@volleyref.com</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <button className="btn" onClick={() => navigateTo('home')}>
+                                            <i className="fas fa-arrow-left"></i> Voltar
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Menu inferior com botão + (apenas se não estiver na arbitragem) */}
+                        {!showArbitration && (
+                            <div className="bottom-nav">
+                                <div className={`nav-item ${activePage === 'home' ? 'active' : ''}`} onClick={() => navigateTo('home')}>
+                                    <i className="fas fa-home"></i>
+                                    <span>Partidas</span>
+                                </div>
+                                <div className={`nav-item ${activePage === 'arbitragem' ? 'active' : ''}`} onClick={() => {
+                                    if (events.length > 0) {
+                                        startArbitration(events[0]);
+                                    } else {
+                                        alert('Crie um evento primeiro!');
+                                    }
+                                }}>
+                                    <i className="fas fa-whistle"></i>
+                                    <span>Arbitrar</span>
+                                </div>
+                                
+                                {/* Botão + flutuante */}
+                                <button className="floating-add-button" onClick={handleCreateEventClick}>
+                                    <i className="fas fa-plus"></i>
+                                </button>
+                                
+                                <div className={`nav-item ${activePage === 'historico' ? 'active' : ''}`} onClick={() => navigateTo('historico')}>
+                                    <i className="fas fa-history"></i>
+                                    <span>Histórico</span>
+                                </div>
+                                <div className={`nav-item ${activePage === 'config' ? 'active' : ''}`} onClick={() => navigateTo('config')}>
+                                    <i className="fas fa-user"></i>
+                                    <span>Perfil</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* Modal para criar evento */}
+                    {renderCreateEventModal()}
+                </>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
